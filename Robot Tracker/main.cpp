@@ -1,15 +1,19 @@
 #include <iostream>
+#include <ctype.h>
 
 using namespace std;
 
+//Robot struct.
 struct Robot{
     int xAxis = 0;
     int yAxis = 0;
     char lastCommand = 'a';
-    int currentSpeed = 0;
+    int currentSpeed = 1;
     int distance = 0;
     string name = " ";
 };
+
+//Prototype functions.
 void move(Robot[], int);
 void menu(Robot[], char&, int);
 int findRobot(Robot[], string, int);
@@ -20,17 +24,19 @@ int main()
     char menuChoice = 'a';
     int numOfRobots = 0;
 
-    //Enter the number of robots you want to track
+    //Enter the number of robots you want to track.
     cout << "How many robots do you want to track?" << endl;
     cin >> numOfRobots;
-    //Creation of the array of robot structs
+    //Creation of the array of robot structs.
     Robot robotList[numOfRobots];
 
-    //Enter the names of the robots that you want to track
+    //Enter the names of the robots that you want to track.
     cout << "Please enter the names of the " << numOfRobots << " robots." << endl;
     for(int i = 0; i < numOfRobots; i++){
         cin >> robotList[i].name;
     }
+
+    //Infinite menu for choosing options. Only quits when user decides to.
     cout << "Welcome to MultiRobot Guider." << endl;
     do{
         cout << "Please select:" << endl;
@@ -54,21 +60,37 @@ void move(Robot robotList[], int index){
     cout << "   L- left" << endl;
     cin >> moveChoice;
 
+    //Controls speedup of the robot. If last command is equal to current command,
+    //increase speedup or do nothing.
+    if(toupper(robotList[index].lastCommand) == toupper(moveChoice)){
+        //If the current speed is less than 4, keep increasing the speed.
+        if(robotList[index].currentSpeed < 4){
+            robotList[index].currentSpeed++;
+        }
+    }
+    else{
+        //If last command is not the same as current command, reset speed to 1.
+        robotList[index].currentSpeed = 1;
+    }
+
+    robotList[index].lastCommand = moveChoice;
+
+    //Switch statement updating movement and tracking total distance.
     switch (moveChoice){
         case 'u':
-        case 'U': robotList[index].yAxis++;
+        case 'U': robotList[index].yAxis += robotList[index].currentSpeed;
                   robotList[index].distance++;
         break;
         case 'd':
-        case 'D': robotList[index].yAxis--;
+        case 'D': robotList[index].yAxis -= robotList[index].currentSpeed;
                   robotList[index].distance++;
         break;
         case 'r':
-        case 'R': robotList[index].xAxis++;
+        case 'R': robotList[index].xAxis += robotList[index].currentSpeed;
                   robotList[index].distance++;
         break;
         case 'l':
-        case 'L': robotList[index].xAxis--;
+        case 'L': robotList[index].xAxis -= robotList[index].currentSpeed;
                   robotList[index].distance++;
         break;
         default: cout << "Invalid direction" << endl;
@@ -76,6 +98,7 @@ void move(Robot robotList[], int index){
     }
 }
 
+//Function to find robots by name.
 int findRobot(Robot robotList[], string robotName, int numOfRobots){
     for(int i = 0; i < numOfRobots; i++){
         if(robotList[i].name == robotName){
@@ -86,6 +109,7 @@ int findRobot(Robot robotList[], string robotName, int numOfRobots){
 
 }
 
+//Main menu handling function. Switch statement used to handle user input.
 void menu(Robot robotList[], char &menuChoice, int numOfRobots){
     string robotName = " ";
     int index = 0;
