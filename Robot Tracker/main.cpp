@@ -10,72 +10,108 @@ struct Robot{
     int distance = 0;
     string name = " ";
 };
-void move(Robot&, char&);
-void menu(char);
+void move(Robot[], int);
+void menu(Robot[], char&, int);
+int findRobot(Robot[], string, int);
 
 int main()
 {
     Robot r;
-    char menuChoice = 'A';
-    char moveChoice = 'a';
+    char menuChoice = 'a';
     int numOfRobots = 0;
 
+    //Enter the number of robots you want to track
     cout << "How many robots do you want to track?" << endl;
     cin >> numOfRobots;
-    Robot roboList[numOfRobots];
+    //Creation of the array of robot structs
+    Robot robotList[numOfRobots];
 
-    //
-    cout << "Please enter the names of the " << numOfRobots << "robots." << endl;
-    for(int i = 0; x < numOfRobots; x++){
-        cin >> roboList[i].name;
+    //Enter the names of the robots that you want to track
+    cout << "Please enter the names of the " << numOfRobots << " robots." << endl;
+    for(int i = 0; i < numOfRobots; i++){
+        cin >> robotList[i].name;
     }
-
+    cout << "Welcome to MultiRobot Guider." << endl;
     do{
-        cout << "Robot's Position is " << r.xAxis << ", " << r.yAxis << endl;
-        cout << "Please select: " << endl;
-        cout << "   U- up" << endl;
-        cout << "   D- down" << endl;
-        cout << "   R- right" << endl;
-        cout << "   L- left" << endl;
-        cout << "   Q- quit" << endl;
-        cin >> moveChoice;
-        move(r, moveChoice);
-    }while(moveChoice != 'q' && moveChoice != 'Q');
+        cout << "Please select:" << endl;
+        cout << "  M- move one robot" << endl;
+        cout << "  D- print the distance each robot has moved" << endl;
+        cout << "  Q- quit the program" << endl;
+        cin >> menuChoice;
+        menu(robotList, menuChoice, numOfRobots);
+    }while(menuChoice != 'q' && menuChoice != 'Q');
 
     return 0;
 }
 
-void move(Robot &r, char &moveChoice){
-          switch (moveChoice){
-            case 'u':
-            case 'U': r.yAxis++;
-            break;
-            case 'd':
-            case 'D': r.yAxis--;
-            break;
-            case 'r':
-            case 'R': r.xAxis++;
-            break;
-            case 'l':
-            case 'L': r.xAxis--;
-            break;
-            case 'q':
-            case 'Q': cout << "Goodbye";
-            break;
-            default: cout << "Invalid command" << endl;
-            break;
-          }
-}
+void move(Robot robotList[], int index){
+    char moveChoice = 'a';
 
-void menu(char menuChoice){
-    switch (menuChoice){
-        case 'm':
-        case 'M':
+    cout << "Please select: " << endl;
+    cout << "   U- up" << endl;
+    cout << "   D- down" << endl;
+    cout << "   R- right" << endl;
+    cout << "   L- left" << endl;
+    cin >> moveChoice;
+
+    switch (moveChoice){
+        case 'u':
+        case 'U': robotList[index].yAxis++;
+                  robotList[index].distance++;
         break;
         case 'd':
-        case 'D':
+        case 'D': robotList[index].yAxis--;
+                  robotList[index].distance++;
+        break;
+        case 'r':
+        case 'R': robotList[index].xAxis++;
+                  robotList[index].distance++;
+        break;
+        case 'l':
+        case 'L': robotList[index].xAxis--;
+                  robotList[index].distance++;
+        break;
+        default: cout << "Invalid direction" << endl;
+        break;
+    }
+}
+
+int findRobot(Robot robotList[], string robotName, int numOfRobots){
+    for(int i = 0; i < numOfRobots; i++){
+        if(robotList[i].name == robotName){
+            return i;
+        }
+    }
+    return -1;
+
+}
+
+void menu(Robot robotList[], char &menuChoice, int numOfRobots){
+    string robotName = " ";
+    int index = 0;
+
+    switch (menuChoice){
+        case 'm':
+        case 'M': cin >> robotName;
+                  index = findRobot(robotList, robotName, numOfRobots);
+                  if(index == -1){
+                    cout << "Robot not in list." << endl;
+                  }
+                  else{
+                    move(robotList, index);
+                    cout << robotList[index].name << "'s position is ";
+                    cout << robotList[index].xAxis << ", " << robotList[index].yAxis << endl;
+                  }
+        break;
+        case 'd':
+        case 'D': for(int k = 0; k < numOfRobots; k++){
+                      cout << robotList[index].name << " " << robotList[index].distance << endl;
+                  }
         break;
         case 'q':
-        case 'Q':
+        case 'Q': cout << "Goodbye" << endl;
         break;
+        default: cout << "Invalid command" << endl;
+        break;
+    }
 }
