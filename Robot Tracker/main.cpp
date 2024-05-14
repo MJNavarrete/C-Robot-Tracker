@@ -14,26 +14,27 @@ struct Robot{
 };
 
 //Prototype functions.
-void move(Robot[], int);
-void menu(Robot[], char&, int);
-int findRobot(Robot[], string, int);
+void move(Robot*, int);
+void menu(Robot**, char&, int);
+int findRobot(Robot*, string, int);
+void sortDistance(Robot**, int);
+Robot** makeBotList(int);
 
 int main()
 {
-    Robot r;
     char menuChoice = 'a';
     int numOfRobots = 0;
 
     //Enter the number of robots you want to track.
     cout << "How many robots do you want to track?" << endl;
     cin >> numOfRobots;
-    //Creation of the array of robot structs.
-    Robot robotList[numOfRobots];
+    //Creation of the array of robot pointers.
+    Robot **robotList = makeBotList(numOfRobots);
 
     //Enter the names of the robots that you want to track.
     cout << "Please enter the names of the " << numOfRobots << " robots." << endl;
     for(int i = 0; i < numOfRobots; i++){
-        cin >> robotList[i].name;
+        cin >> robotList[i]->name;
     }
 
     //Infinite menu for choosing options. Only quits when user decides to.
@@ -47,10 +48,12 @@ int main()
         menu(robotList, menuChoice, numOfRobots);
     }while(menuChoice != 'q' && menuChoice != 'Q');
 
+    delete [] robotList;
+
     return 0;
 }
 
-void move(Robot robotList[], int index){
+void move(Robot *robotList[], int index){
     char moveChoice = 'a';
 
     cout << "Please select: " << endl;
@@ -62,36 +65,36 @@ void move(Robot robotList[], int index){
 
     //Controls speedup of the robot. If last command is equal to current command,
     //increase speedup or do nothing.
-    if(toupper(robotList[index].lastCommand) == toupper(moveChoice)){
+    if(toupper(robotList[index]->lastCommand) == toupper(moveChoice)){
         //If the current speed is less than 4, keep increasing the speed.
-        if(robotList[index].currentSpeed < 4){
-            robotList[index].currentSpeed++;
+        if(robotList[index]->currentSpeed < 4){
+            robotList[index]->currentSpeed++;
         }
     }
     else{
         //If last command is not the same as current command, reset speed to 1.
-        robotList[index].currentSpeed = 1;
+        robotList[index]->currentSpeed = 1;
     }
 
-    robotList[index].lastCommand = moveChoice;
+    robotList[index]->lastCommand = moveChoice;
 
     //Switch statement updating movement and tracking total distance.
     switch (moveChoice){
         case 'u':
-        case 'U': robotList[index].yAxis += robotList[index].currentSpeed;
-                  robotList[index].distance++;
+        case 'U': robotList[index]->yAxis += robotList[index]->currentSpeed;
+                  robotList[index]->distance += robotList[index]->currentSpeed;
         break;
         case 'd':
-        case 'D': robotList[index].yAxis -= robotList[index].currentSpeed;
-                  robotList[index].distance++;
+        case 'D': robotList[index]->yAxis -= robotList[index]->currentSpeed;
+                  robotList[index]->distance += robotList[index]->currentSpeed;
         break;
         case 'r':
-        case 'R': robotList[index].xAxis += robotList[index].currentSpeed;
-                  robotList[index].distance++;
+        case 'R': robotList[index]->xAxis += robotList[index]->currentSpeed;
+                  robotList[index]->distance += robotList[index]->currentSpeed;
         break;
         case 'l':
-        case 'L': robotList[index].xAxis -= robotList[index].currentSpeed;
-                  robotList[index].distance++;
+        case 'L': robotList[index]->xAxis -= robotList[index]->currentSpeed;
+                  robotList[index]->distance += robotList[index]->currentSpeed;
         break;
         default: cout << "Invalid direction" << endl;
         break;
@@ -99,9 +102,9 @@ void move(Robot robotList[], int index){
 }
 
 //Function to find robots by name.
-int findRobot(Robot robotList[], string robotName, int numOfRobots){
+int findRobot(Robot *robotList[], string robotName, int numOfRobots){
     for(int i = 0; i < numOfRobots; i++){
-        if(robotList[i].name == robotName){
+        if(robotList[i]->name == robotName){
             return i;
         }
     }
@@ -110,7 +113,7 @@ int findRobot(Robot robotList[], string robotName, int numOfRobots){
 }
 
 //Main menu handling function. Switch statement used to handle user input.
-void menu(Robot robotList[], char &menuChoice, int numOfRobots){
+void menu(Robot *robotList[], char &menuChoice, int numOfRobots){
     string robotName = " ";
     int index = 0;
 
@@ -123,13 +126,14 @@ void menu(Robot robotList[], char &menuChoice, int numOfRobots){
                   }
                   else{
                     move(robotList, index);
-                    cout << robotList[index].name << "'s position is ";
-                    cout << robotList[index].xAxis << ", " << robotList[index].yAxis << endl;
+                    cout << robotList[index]->name << "'s position is ";
+                    cout << robotList[index]->xAxis << ", " << robotList[index]->yAxis << endl;
                   }
         break;
         case 'd':
-        case 'D': for(int k = 0; k < numOfRobots; k++){
-                      cout << robotList[index].name << " " << robotList[index].distance << endl;
+        case 'D': sortDistance(robotList, numOfRobots);
+                  for(int k = 0; k < numOfRobots; k++){
+                      cout << robotList[k]->name << " " << robotList[k]->distance << endl;
                   }
         break;
         case 'q':
@@ -138,4 +142,29 @@ void menu(Robot robotList[], char &menuChoice, int numOfRobots){
         default: cout << "Invalid command" << endl;
         break;
     }
+}
+
+void sortDistance(Robot *robotList[], int numOfRobots){
+    bool swap;
+    Robot temp;
+    do{
+        swap = false;
+        for(int j = 0; j < (numOfRobots - 1); j++){
+            if(robotList[j]->distance < robotList[j + 1]->distance){
+                temp = *robotList[j];
+                *robotList[j] = *robotList[j + 1];
+                *robotList[j + 1] = temp;
+                swap = true;
+            }
+        }
+    }while(swap);
+}
+
+//Creates the dynamically allocated array of robot pointers
+Robot** makeBotList(int SIZE){
+    Robot** botList = new Robot*[SIZE];
+    for(int i = 0; i < SIZE; i++){
+        botList[i] = new Robot;
+    }
+    return botList;
 }
